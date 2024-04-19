@@ -372,7 +372,45 @@ void MainObject::CheckToMap(Map& map_data)
     else if (x_pos_ + width_frame_ > map_data.max_x_)
         x_pos_ = map_data.max_x_ - width_frame_ - 1;
 }
-
+void MainObject:: MoveMap(Map& map_data)
+{
+    map_data.start_x_+= 6;
+    if (rect_.x >= SCREEN_WIDTH or rect_.x <= 0)
+    {
+        map_data.start_x_ = 0;
+    }
+    if (rect_.y >= SCREEN_HEIGHT)
+    {
+        map_data.start_x_ = 0;
+    }
+    /*map_data.start_x_ = x_pos_ - (SCREEN_WIDTH / 2);
+    if (map_data.start_x_ < 0)
+    {
+        map_data.start_x_ = 0;
+    }
+    else if (map_data.start_x_ + SCREEN_WIDTH >= map_data.max_x_)
+    {
+        map_data.start_x_ = map_data.max_x_ - SCREEN_WIDTH;
+    }
+    map_data.start_y_ = y_pos_ - (SCREEN_HEIGHT / 2);
+    if (map_data.start_y_ < 0)
+    {
+        map_data.start_y_ = 0;
+    }
+    else  if (map_data.start_y_ + SCREEN_HEIGHT >= map_data.max_y_)
+    {
+        map_data.start_y_ = map_data.max_y_ - SCREEN_HEIGHT;
+    }
+        SDL_Event e;
+    while (true) {
+        if ( SDL_PollEvent(&e) != 0 &&
+             (e.type == SDL_KEYDOWN || e.type == SDL_QUIT) )
+             map_data.start_x_+=10;
+            return;
+        map_data.start_x_+=10;
+        SDL_Delay(100);
+    }*/
+}
 
 
 
