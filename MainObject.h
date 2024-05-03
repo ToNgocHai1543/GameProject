@@ -5,9 +5,10 @@
 #include "CommonFunc.h"
 
 #define GRAVITY_SPEED 0.8
-#define MAX_FALL_SPEED 10
+#define GRAVITY 1
+#define MAX_FALL_SPEED 100
 #define PLAYER_SPEED 10
-
+#define PLAYER_JUMP_SPEED 20
 class MainObject : public BaseObject
 {
 public :
@@ -25,17 +26,45 @@ public :
     };
     bool LoadImg(std:: string path, SDL_Renderer* screen);
     void Show(SDL_Renderer* des);
-    void HandelInputAction(SDL_Event events, SDL_Renderer* screen);
+    void HandelInputAction(SDL_Event events, SDL_Renderer* screen,
+                            Mix_Chunk* g_sound_character[10]);
     void set_clips();
 
-    void DoPlayer(Map& map_data);
+    void DoPlayer(Map& map_data,Mix_Chunk* g_sound_character[10]);
     void CheckToMap(Map & map_data);
-private:
+
+    void CheckVerticalUp(Map& map_data);
+    void CheckVerticalDown(Map& map_data);
+
+    void CheckHorizontalLeft(Map& map_data);
+    void CheckHorizontalRight(Map& map_data);
+
+    void SetMapXY(const int map_x, const  int map_y){map_x_ = map_x; map_y_ = map_y;}
+    void MoveMap(Map& map_data);
+
+    void MoveLeft();
+    void MoveRight();
+    void JumpLeft();
+    void JumpRight();
+    void SlideLeft();
+    void SlideRight();
+
+    void CheckTNT(Map& map_data);
+    void waitUntilKeyPressed();
+    void deleteImageAfterDelay();
+
+    bool star_;
+    bool tnt;
+    bool ps;
+    bool die;
+
+ private:
     float x_val_;
     float y_val_;
 
     float x_pos_;
     float y_pos_;
+    float velocity;
 
     int width_frame_;
     int height_frame_;
@@ -48,6 +77,8 @@ private:
     int status_;
 
     bool on_ground_;
+    int map_x_;
+    int map_y_;
 
 };
 
