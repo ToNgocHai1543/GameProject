@@ -1,4 +1,4 @@
-#include "stdafx.h"
+//#include "stdafx.h"
 #include "BaseObject.h"
 
 BaseObject::BaseObject()
@@ -13,7 +13,6 @@ BaseObject::~BaseObject()
 {
     Free();
 }
-
 bool BaseObject::LoadImg(std::string path, SDL_Renderer* screen)
 {
     SDL_Texture* new_texture = NULL;
