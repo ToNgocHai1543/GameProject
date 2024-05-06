@@ -12,7 +12,14 @@
 static SDL_Window* g_window = NULL;
 static SDL_Renderer* g_screen = NULL;
 static SDL_Event g_event;
+static Mix_Chunk* g_sound_character[10];
+static Mix_Music* m_ingame = NULL;
+static TTF_Font* font_time = NULL;
+static bool mute;
+//static SDL_Surface* g_menu = NULL;
+
 // Screen;
+
 const int SCREEN_WIDTH = 1280;
 const int SCREEN_HEIGHT = 640;
 const int SCREEN_BPP = 32;
@@ -24,6 +31,7 @@ const int COLOR_KEY_B = 170;
 const int RENDER_DRAW_COLOR = 0xff;
 
 // Main Object
+
 typedef struct Input
 {
     int left_;
@@ -41,6 +49,12 @@ typedef struct Input
 
 #define MAX_MAP_X 400
 #define MAX_MAP_Y 10
+
+#define TNT 7
+#define POISION 6
+#define STAR 8
+#define MAP_STEP 5
+
 typedef struct Map
 {
     int start_x_;
