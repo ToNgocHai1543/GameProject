@@ -1,15 +1,16 @@
 #include "stdafx.h"
 #include "MainObject.h"
-
+#include <iostream>
+using namespace std;
 MainObject::MainObject()
 {
     frame_ = 0;
-    x_pos_ = 0;
-    y_pos_ = 0;
-    x_val_ = 0;
-    y_val_ = 0;
+    x_pos_ = 128;
+    y_pos_ = 320;
+
     width_frame_ = 0;
     height_frame_ = 0;
+
     status_ = -1;
     input_type_.left_  = 0;
     input_type_.right_ = 0;
@@ -17,8 +18,15 @@ MainObject::MainObject()
     input_type_.jump_right_ = 0;
     input_type_.slide_right_ = 0;
     input_type_.slide_left_ = 0;
+
     on_ground_ = false;
-}
+
+    velocity = 0;
+    tnt = false;
+    ps = false;
+    star_ = false;
+    die = false;
+ }
 
 MainObject::~MainObject()
 {
@@ -93,29 +101,32 @@ void MainObject::set_clips()
 
 void MainObject::Show(SDL_Renderer* des)
 {
-    if (status_ == WALK_LEFT)
+    if (on_ground_ == true)
     {
-        LoadImg("asset//Run__l.png", des);
+        if (status_ == WALK_LEFT)
+        {
+            LoadImg("Ninja//Run__l.png", des);
+        }
+        else if (status_ == WALK_RIGHT)
+        {
+            LoadImg("Ninja//Run__r.png", des);
+        }
+        else if (status_ == SLIDE_LEFT)
+        {
+            LoadImg("Ninja//Slide_l.png", des);
+        }
+        else if (status_ == SLIDE_RIGHT)
+        {
+            LoadImg("Ninja//Slide_r.png", des);
+        }
     }
-    else if (status_ == WALK_RIGHT)
-    {
-        LoadImg("asset//Run__r.png", des);
-    }
-    else if (status_ == JUMP_LEFT )
+    if (status_ == JUMP_LEFT )
     {
         LoadImg("Ninja//Jump_l.png", des);
     }
     else if (status_ == JUMP_RIGHT)
     {
         LoadImg("Ninja//Jump_r.png", des);
-    }
-    else if (status_ == SLIDE_LEFT)
-    {
-        LoadImg("Ninja//Slide_l.png", des);
-    }
-    else if (status_ == SLIDE_RIGHT)
-    {
-        LoadImg("Ninja//Slide_r.png", des);
     }
     if (input_type_.left_ == 1 or input_type_.right_ == 1
         or input_type_.jump_left_ == 1 or input_type_.jump_right_ == 1
@@ -128,8 +139,8 @@ void MainObject::Show(SDL_Renderer* des)
     }
     if (frame_ >= 10 ) frame_ = 0;
 
-    rect_.x = x_pos_;
-    rect_.y = y_pos_;
+    rect_.x = x_pos_ - map_x_;
+    rect_.y = y_pos_ - map_y_;
 
     SDL_Rect* current_clip = &frame_clip_[frame_];
 
@@ -138,7 +149,8 @@ void MainObject::Show(SDL_Renderer* des)
     SDL_RenderCopy(des, p_object_, current_clip, &renderQuad);
 }
 
-void MainObject:: HandelInputAction(SDL_Event events, SDL_Renderer* screen)
+void MainObject:: HandelInputAction(SDL_Event events, SDL_Renderer* screen,
+                                    Mix_Chunk* g_sound_character[10])
 {
     if (events.type == SDL_KEYDOWN)
     {
@@ -148,72 +160,65 @@ void MainObject:: HandelInputAction(SDL_Event events, SDL_Renderer* screen)
             {
                 status_ = WALK_RIGHT;
                 input_type_.right_ = 1;
-                input_type_.left_ = 0;
-                input_type_.jump_right_ = 0;
-                input_type_.jump_left_ = 0;
-                input_type_.slide_left_ = 0;
-                input_type_.slide_right_ = 0;
+                if (on_ground_ == true)
+                {
+
+                  LoadImg("Ninja//Run__r.png", screen);
+
+                }
+                else {
+                    LoadImg("Ninja//Jump_r.png", screen);
+                }
+                Mix_PlayChannel(-1, g_sound_character[0], 0);
             }
             break;
         case SDLK_LEFT:
             {
                 status_ = WALK_LEFT;
                 input_type_.left_ = 1;
-                input_type_.right_ = 0;
-                input_type_.jump_right_ = 0;
-                input_type_.jump_left_ = 0;
-                input_type_.slide_left_ = 0;
-                input_type_.slide_right_ = 0;
+                if (on_ground_ == true)
+                {
+                  LoadImg ("Ninja//Run__l.png", screen);
+                }
+                else {
+                    LoadImg("Ninja//Jump_l.png", screen);
+                }
+                Mix_PlayChannel(-1, g_sound_character[0], 0);
             }
             break;
         case SDLK_UP:
             {
-                if (status_ == WALK_LEFT)
+                if (on_ground_)
                 {
-                    status_ = JUMP_LEFT;
-                    input_type_.jump_left_ = 1;
-                    input_type_.left_ = 0;
-                    input_type_.right_ = 0;
-                    input_type_.jump_right_ = 0;
-                    input_type_.slide_left_ = 0;
-                    input_type_.slide_right_ = 0;
-                }
-                else if (status_ == WALK_RIGHT)
-                {
-                    status_ = JUMP_RIGHT;
-                    input_type_.jump_right_ = 1;
-                    input_type_.jump_left_ = 0;
-                    input_type_.left_ = 0;
-                    input_type_.right_ = 0;
-                    input_type_.slide_left_ = 0;
-                    input_type_.slide_right_ = 0;
+                    if (status_ == WALK_LEFT or status_ == JUMP_LEFT)
+                    {
+                        status_ = JUMP_LEFT;
+                        input_type_.jump_left_ = 1;
+                    }
+                    if (status_ == WALK_RIGHT or status_ == JUMP_RIGHT)
+                    {
+                        status_ = JUMP_RIGHT;
+                        input_type_.jump_right_ = 1;
+                    }
+                    Mix_PlayChannel(-1, g_sound_character[1], 0);
                 }
             }
             break;
         case SDLK_DOWN:
             {
 
-                if (status_ == WALK_LEFT)
+                if (status_ == WALK_LEFT or status_ == JUMP_LEFT or status_ == SLIDE_LEFT)
                 {
                     status_ = SLIDE_LEFT;
                     input_type_.slide_left_ = 1;
-                    input_type_.slide_right_ = 0;
-                    input_type_.left_ = 0;
-                    input_type_.right_ = 0;
-                    input_type_.jump_right_ = 0;
-                    input_type_.jump_left_ = 0;
 
                 }
-                else if (status_ == WALK_RIGHT)
+                if (status_ == WALK_RIGHT or status_ == JUMP_RIGHT or status_ == SLIDE_RIGHT)
                 {
                     status_ = SLIDE_RIGHT;
                     input_type_.slide_right_ = 1;
-                    input_type_.slide_left_ = 0;
-                    input_type_.jump_right_ = 0;
-                    input_type_.jump_left_ = 0;
-                    input_type_.left_ = 0;
-                    input_type_.right_ = 0;
                 }
+                Mix_PlayChannel(-1, g_sound_character[0], 0);
             }
             break;
         }
@@ -224,32 +229,22 @@ void MainObject:: HandelInputAction(SDL_Event events, SDL_Renderer* screen)
         {
         case SDLK_RIGHT:
             {
-                //status_ = WALK_RIGHT;
                 input_type_.right_ = 0;
-                //input_type_.left_ = 1;
             }
             break;
         case SDLK_LEFT:
             {
-                //status_ = WALK_LEFT;
                 input_type_.left_ = 0;
-                //input_type_.right_ = 1;
             }
             break;
         case SDLK_UP:
             {
-                //if (input_type_.slide_left_ == 1) input_type_.slide_left_ = 0;
-                //else input_type_.slide_right_ = 0;
                 input_type_.jump_left_ = 0;
                 input_type_.jump_right_ = 0;
-                //x_pos_ -= PLAYER_SPEED;
-                //y_pos_ += PLAYER_SPEED;
             }
             break;
         case SDLK_DOWN:
             {
-                //if (input_type_.slide_left_ == 1) input_type_.slide_left_ = 0;
-                //else input_type_.slide_right_ = 0;
                 input_type_.slide_left_ = 0;
                 input_type_.slide_right_ = 0;
             }
@@ -258,159 +253,348 @@ void MainObject:: HandelInputAction(SDL_Event events, SDL_Renderer* screen)
     }
 }
 
-void MainObject::DoPlayer ( Map& map_data)
+bool MainObject::CheckLose()
 {
-    x_val_ = 0;
-    y_val_ += 0.8;
-
-    if (y_val_ >= MAX_FALL_SPEED)
-    {
-        y_val_ = MAX_FALL_SPEED;
-    }
-
-    if (input_type_.left_ == 1)
-    {
-        x_val_ -= PLAYER_SPEED;
-    }
-    else if (input_type_.right_ == 1)
-    {
-        x_val_ += PLAYER_SPEED;
-    }
-    else if (input_type_.jump_left_ == 1 )
-    {
-        y_val_ -=  PLAYER_SPEED;
-        x_val_ -= PLAYER_SPEED;
-    }
-    else if (input_type_.jump_right_ == 1 )
-    {
-        y_val_ -=  PLAYER_SPEED;
-        x_val_ += PLAYER_SPEED;
-    }
-    else if (input_type_.slide_left_ == 1)
-    {
-        x_val_ -= PLAYER_SPEED;
-    }
-    else if (input_type_.slide_right_ == 1)
-    {
-        x_val_ += PLAYER_SPEED;
-    }
-
-    CheckToMap(map_data);
+    return die;
 }
-void MainObject::CheckToMap(Map& map_data)
+
+void MainObject::waitUntilKeyPressed()
 {
-    int x1 = 0;
-    int x2 = 0;
-
-    int y1 = 0;
-    int y2 = 0;
-
-    //Check horizontal
-    int height_min = height_frame_ <TILE_SIZE ? height_frame_ : TILE_SIZE;
-
-    x1 = (x_pos_ + x_val_) / TILE_SIZE;
-    x2 = (x_pos_ + x_val_ + width_frame_ - 1) / TILE_SIZE;
-
-    y1 = (y_pos_) / TILE_SIZE;
-    y2 = (y_pos_ + height_min - 1) / TILE_SIZE;
-
-    if(x1 >= 0 && x2 < MAX_MAP_X and y1 >= 0 and y2 < MAX_MAP_Y)
-    {
-        if (x_val_ > 0) // vat dang di chuyen
-        {
-            if (map_data.tile[y1][x2] != BLANK_TILE or map_data.tile[y2][x2] != BLANK_TILE)
-            {
-                x_pos_ = x2*TILE_SIZE;
-                x_pos_ -= width_frame_ + 1;
-                x_val_ = 0;
-            }
-        }
-        else if (x_val_ < 0)
-        {
-            if (map_data.tile[y1][x1] != BLANK_TILE or map_data.tile[y2][x1]!= BLANK_TILE)
-            {
-                x_pos_ = (x1 + 1) * TILE_SIZE;
-                x_val_ = 0;
-            }
-        }
-    }
-
-    //Check vertical
-
-    int width_min = width_frame_ < TILE_SIZE ? width_frame_ : TILE_SIZE;
-    x1 = (x_pos_) / TILE_SIZE;
-    x2 = (x_pos_ + width_min) / TILE_SIZE;
-
-    y1 = (y_pos_ + y_val_) / TILE_SIZE;
-    y2 = (y_pos_ + y_val_ + height_min - 1) / TILE_SIZE;
-
-    if (x1 >= 0 and x2 < MAX_MAP_X and y1 >= 0 and y2 <= MAX_MAP_Y)
-    {
-        if (y_val_ > 0)
-        {
-            if (map_data.tile[y2][x1] != BLANK_TILE or map_data.tile[y2][x2] != BLANK_TILE)
-            {
-                y_pos_ = y2 * TILE_SIZE;
-                y_pos_ -= (height_min + 1);
-                y_val_ = 0;
-                on_ground_ = true;
-            }
-        }
-        else if (y_val_ < 0)
-        {
-            if (map_data.tile[y1][x1] != BLANK_TILE or map_data.tile[y1][x2] != BLANK_TILE)
-            {
-                y_pos_ = (y1 + 1) * TILE_SIZE;
-                y_val_ = 0;
-            }
-        }
-    }
-    x_pos_ += x_val_;
-    y_pos_ += y_val_;
-    if (x_pos_ < 0) x_pos_ = 0;
-    else if (x_pos_ + width_frame_ > SCREEN_WIDTH) x_pos_ = SCREEN_WIDTH - width_frame_;
-    else if (x_pos_ + width_frame_ > map_data.max_x_)
-        x_pos_ = map_data.max_x_ - width_frame_ - 1;
-}
-void MainObject:: MoveMap(Map& map_data)
-{
-    map_data.start_x_+= 6;
-    if (rect_.x >= SCREEN_WIDTH or rect_.x <= 0)
-    {
-        map_data.start_x_ = 0;
-    }
-    if (rect_.y >= SCREEN_HEIGHT)
-    {
-        map_data.start_x_ = 0;
-    }
-    /*map_data.start_x_ = x_pos_ - (SCREEN_WIDTH / 2);
-    if (map_data.start_x_ < 0)
-    {
-        map_data.start_x_ = 0;
-    }
-    else if (map_data.start_x_ + SCREEN_WIDTH >= map_data.max_x_)
-    {
-        map_data.start_x_ = map_data.max_x_ - SCREEN_WIDTH;
-    }
-    map_data.start_y_ = y_pos_ - (SCREEN_HEIGHT / 2);
-    if (map_data.start_y_ < 0)
-    {
-        map_data.start_y_ = 0;
-    }
-    else  if (map_data.start_y_ + SCREEN_HEIGHT >= map_data.max_y_)
-    {
-        map_data.start_y_ = map_data.max_y_ - SCREEN_HEIGHT;
-    }
-        SDL_Event e;
+    SDL_Event e;
     while (true) {
         if ( SDL_PollEvent(&e) != 0 &&
              (e.type == SDL_KEYDOWN || e.type == SDL_QUIT) )
-             map_data.start_x_+=10;
             return;
-        map_data.start_x_+=10;
         SDL_Delay(100);
-    }*/
+    }
 }
+void MainObject::MoveLeft()
+{
+    x_pos_ = x_pos_ - PLAYER_SPEED + MAP_STEP;
+}
+void MainObject::MoveRight()
+{
+    x_pos_ += PLAYER_SPEED;
+}
+void MainObject::JumpLeft()
+{
+    if (on_ground_ == true)
+    {
+        velocity = 0 - PLAYER_JUMP_SPEED;
+        x_pos_ = x_pos_ - PLAYER_SPEED + MAP_STEP;
+    }
+}
+void MainObject::JumpRight()
+{
+    if (on_ground_ == true)
+    {
+        velocity = 0 - PLAYER_JUMP_SPEED;
+        x_pos_ += PLAYER_SPEED;
+    }
+}
+void MainObject::SlideLeft()
+{
+    x_pos_ = x_pos_ - PLAYER_SPEED + MAP_STEP;
+}
+void MainObject::SlideRight()
+{
+     x_pos_ += PLAYER_SPEED;
+}
+void MainObject::DoPlayer(Map& map_data, Mix_Chunk* g_sound_character[10])
+{
+    die = false;
+    if (input_type_.left_ == 1)
+    {
+        MoveLeft();
+    }
+    else if (input_type_.right_ == 1)
+    {
+        MoveRight();
+    }
+    else if (input_type_.jump_left_ == 1 )
+    {
+        JumpLeft();
+    }
+    else if (input_type_.jump_right_ == 1 )
+    {
+
+        JumpRight();
+    }
+    else if (input_type_.slide_left_ == 1)
+    {
+        SlideLeft();
+    }
+    else if (input_type_.slide_right_ == 1)
+    {
+        SlideRight();
+    }
+
+
+    // Kiểm tra va chạm với bản đồ và di chuyển nhân vật
+    CheckVerticalDown(map_data);
+    CheckVerticalUp(map_data);
+    CheckHorizontalRight(map_data);
+    CheckHorizontalLeft(map_data);
+    if (tnt == true)
+    {
+        Mix_PlayChannel(-1, g_sound_character[2], 0);
+        die = true;
+    }
+    if (ps == true)
+    {
+        Mix_PlayChannel(-1, g_sound_character[3], 0);
+        die = true;
+    }
+    if (star_ == true)
+    {
+        Mix_PlayChannel(-1, g_sound_character[4], 0);
+    }
+    if (rect_.x >= SCREEN_WIDTH or rect_.x <= -5)
+    {
+       Mix_PlayChannel(-1, g_sound_character[5], 0);
+       die = true;
+    }
+    if (rect_.y >= SCREEN_HEIGHT)
+    {
+        Mix_PlayChannel(-1, g_sound_character[5], 0);
+        die = true;
+    }
+    MoveMap(map_data);
+}
+
+void MainObject::CheckVerticalDown(Map& map_data)
+{
+    int y = 0;
+    int x = 0;
+    int y_next = y_pos_ + velocity;
+    x = (x_pos_ - width_frame_ /2 - 10) / TILE_SIZE + 1;
+    y = (y_next + height_frame_) / TILE_SIZE;
+    if (map_data.tile[y][x] == BLANK_TILE)
+    {
+        y_pos_ = y_pos_ + velocity;
+        velocity = velocity + GRAVITY;
+        on_ground_ = false;
+    }
+    else
+    {
+        if (map_data.tile[y][x] == STAR)
+        {
+            star_ = true;
+            map_data.tile[y][x] = BLANK_TILE;
+        }
+        if (map_data.tile[y][x] == TNT )
+        {
+        tnt = true;
+        }
+        if ( map_data.tile[y][x] == POISION)
+        {
+        ps = true;
+        }
+        on_ground_ = true;
+        y_pos_ = y * TILE_SIZE - height_frame_;
+
+    }
+
+}
+void MainObject::CheckVerticalUp(Map& map_data)
+{
+    int x = 0, y = 0;
+    int y_next = y_pos_ + velocity;
+    x = (x_pos_ + width_frame_ / 2 ) / TILE_SIZE;
+    y = y_next / TILE_SIZE;
+    if (map_data.tile[y][x] != BLANK_TILE && velocity < 0)
+    {
+        y_pos_ = (y + 1) * TILE_SIZE ;
+        velocity += GRAVITY;
+        if (map_data.tile[y][x] == TNT)
+        {
+            tnt = true;
+        }
+        if ( map_data.tile[y][x] == POISION)
+        {
+        ps = true;
+        }
+    }
+    if (map_data.tile[y][x] == STAR)
+    {
+        star_ = true;
+        map_data.tile[y][x] = BLANK_TILE;
+    }
+    //else star_ = false;
+
+}
+void MainObject::CheckHorizontalRight(Map& map_data)
+{
+    int x = 0, y = 0;
+    int y_next = y_pos_ + velocity;
+    x = (x_pos_ + width_frame_  + 1 ) / TILE_SIZE;
+    y = (y_pos_ + 1) / TILE_SIZE;
+    if (height_frame_ > TILE_SIZE)
+    {
+        if (map_data.tile[y][x] != BLANK_TILE or map_data.tile[y + 1][x] != BLANK_TILE)
+        {
+            //x_pos_ = x * TILE_SIZE - width_frame_;
+            x_pos_ = x_pos_ - PLAYER_SPEED;
+        }
+        if (map_data.tile[y][x] == TNT or map_data.tile[y + 1][x] == TNT)
+        {
+            tnt = true;
+        }
+        if (map_data.tile[y][x] == POISION  or map_data.tile[y + 1][x] == POISION)
+        {
+        ps = true;
+        }
+        if (map_data.tile[y][x] == STAR )
+        {
+            star_ = true;
+            map_data.tile[y][x] = BLANK_TILE;
+        }
+        if (map_data.tile[y + 1][x] == STAR )
+        {
+            star_ = true;
+            map_data.tile[y + 1][x] = BLANK_TILE;
+        }
+    }
+    else if(map_data.tile[y][x] != BLANK_TILE)
+    {
+        if (map_data.tile[y][x] == STAR)
+        {
+            star_ = true;
+            map_data.tile[y][x] = BLANK_TILE;
+        }
+        if (map_data.tile[y][x] == TNT)
+        {
+            tnt = true;
+        }
+        if ( map_data.tile[y][x] == POISION)
+        {
+        ps = true;
+        }
+        x_pos_ = x_pos_ - PLAYER_SPEED;
+
+    }
+}
+void MainObject::CheckHorizontalLeft(Map& map_data)
+{
+    int x = 0, y = 0;
+    int y_next = y_pos_ + velocity;
+    x = (x_pos_ + 1 ) / TILE_SIZE;
+    y = (y_pos_ + 1) / TILE_SIZE;
+    if (height_frame_ > TILE_SIZE)
+    {
+        if (map_data.tile[y][x] != BLANK_TILE or map_data.tile[y + 1][x] != BLANK_TILE)
+        {
+            x_pos_ = x_pos_ + PLAYER_SPEED;
+        }
+        if (map_data.tile[y][x] == TNT or map_data.tile[y + 1][x] == TNT)
+        {
+            tnt = true;
+        }
+        if (map_data.tile[y][x] == POISION
+             or map_data.tile[y + 1][x] == POISION)
+        {
+        ps = true;
+        }
+        if (map_data.tile[y][x] == STAR )
+        {
+            star_ = true;
+            map_data.tile[y][x] = BLANK_TILE;
+        }
+        if (map_data.tile[y + 1][x] == STAR )
+        {
+            star_ = true;
+            map_data.tile[y + 1][x] = BLANK_TILE;
+        }
+    }
+    else if(map_data.tile[y][x] != BLANK_TILE)
+    {
+        x_pos_ = x_pos_ + PLAYER_SPEED;
+        if (map_data.tile[y][x] == STAR)
+        {
+            star_ = true;
+            map_data.tile[y][x] = BLANK_TILE;
+        }
+        if (map_data.tile[y][x] == TNT)
+        {
+            tnt = true;
+        }
+        if ( map_data.tile[y][x] == POISION)
+        {
+        ps = true;
+        }
+    }
+}
+
+void MainObject:: MoveMap(Map& map_data)
+{
+    //cerr << "map_x_ " <<  map_x_ << endl;
+    //cerr << "map_y_ " << map_y_ << endl;
+    if (map_data.start_x_ >= MAX_MAP_X * TILE_SIZE)
+    {
+        map_data.start_x_ = 0;
+    }
+    else
+    {
+        map_data.start_x_ = (map_data.start_x_ + MAP_STEP) % (MAX_MAP_X * TILE_SIZE);
+
+    }
+
+    if (rect_.x >= SCREEN_WIDTH or rect_.x <= 0)
+    {
+       // waitUntilKeyPressed();
+        map_data.start_x_ = MAP_STEP;
+        x_pos_ = 128; y_pos_ = 320;
+        status_ = -1;
+        input_type_.left_  = 0;
+        input_type_.right_ = 0;
+        input_type_.jump_left_ = 0;
+        input_type_.jump_right_ = 0;
+        input_type_.slide_right_ = 0;
+        input_type_.slide_left_ = 0;
+    }
+    if (rect_.y >= SCREEN_HEIGHT)
+    {
+       // waitUntilKeyPressed();
+        map_data.start_x_ = MAP_STEP;
+        x_pos_ = 128; y_pos_ = 320;
+        status_ = -1;
+        input_type_.left_  = 0;
+        input_type_.right_ = 0;
+        input_type_.jump_left_ = 0;
+        input_type_.jump_right_ = 0;
+        input_type_.slide_right_ = 0;
+        input_type_.slide_left_ = 0;
+    }
+    if (ps == true)
+    {
+       // waitUntilKeyPressed();
+        map_data.start_x_ = MAP_STEP;
+        x_pos_ = 128; y_pos_ = 320;
+        status_ = -1;
+        ps = false;
+        input_type_.left_  = 0;
+        input_type_.right_ = 0;
+        input_type_.jump_left_ = 0;
+        input_type_.jump_right_ = 0;
+        input_type_.slide_right_ = 0;
+        input_type_.slide_left_ = 0;
+    }
+    if (tnt == true)
+    {
+       // waitUntilKeyPressed();
+        map_data.start_x_ = MAP_STEP;
+        x_pos_ = 128; y_pos_ = 320;
+        tnt = false;
+        status_ = -1;
+        input_type_.left_  = 0;
+        input_type_.right_ = 0;
+        input_type_.jump_left_ = 0;
+        input_type_.jump_right_ = 0;
+        input_type_.slide_right_ = 0;
+        input_type_.slide_left_ = 0;
+    }
+}
+
 
 
 
