@@ -2,6 +2,7 @@
 #define BASE_OBJECT_H_
 
 #include "CommonFunc.h"
+#include "Menu_object.h"
 #include "stdafx.h"
 
 class BaseObject
@@ -16,6 +17,9 @@ public:
     virtual bool LoadImg(std:: string path, SDL_Renderer* screen);
     void Render( SDL_Renderer* des, const SDL_Rect* clip = NULL);
     void Free();
+
+    //int Menugame(SDL_Surface* des, TTF_Font* font);
+    //bool CheckFocus(const int x, const int y, const SDL_Rect& rect);
 protected:
     SDL_Texture* p_object_;
     SDL_Rect rect_;
