@@ -48,10 +48,9 @@ public :
     void JumpRight();
     void SlideLeft();
     void SlideRight();
-
-    void CheckTNT(Map& map_data);
+    void Star_Game(Map& map_data);
+    bool CheckLose();
     void waitUntilKeyPressed();
-    void deleteImageAfterDelay();
 
     bool star_;
     bool tnt;
