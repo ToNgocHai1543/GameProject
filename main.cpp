@@ -94,16 +94,15 @@ void close()
 }
 int main(int argc, char *argv[])
 {
+
     if (InitData() == false)
     {
         return -1;
     }
-    Mix_PlayMusic(m_ingame, -1);
-
     SDL_Surface* mouse = IMG_Load("asset//mouse.png");
     SDL_Cursor* cursor = SDL_CreateColorCursor(mouse, 0, 0);
     SDL_SetCursor(cursor);
-
+    Mix_PlayMusic(m_ingame, -1);
     Menu menu_game;
     int ret_menu = 0;
 
@@ -131,11 +130,14 @@ int main(int argc, char *argv[])
     bool is_quit = false;
     Uint32 star_val = 0;
     mute = false;
+    menu_game.win = false;
     while(!is_quit)
     {
+        p_player.MAP_STEP = 5;
+        p_player.PLAYER_SPEED = 10;
         while(ret_menu == 0)
         {
-            ret_menu = menu_game.ShowMenu("PLAY GAME", "EXIT", "DIFFICULT", "HOW", g_screen,g_sound_character);
+            ret_menu = menu_game.ShowMenu("PLAY GAME", "EXIT", "LEVEL", "HOW", g_screen,g_sound_character);
             if(ret_menu == -1) return 0;
             if (ret_menu == 2)
             {
@@ -149,11 +151,27 @@ int main(int argc, char *argv[])
             {
                 while (ret_menu == 3)
                 {
-                    ret_menu = menu_game.Show_Difficult(g_screen, "EASY", "NORMAL", "HARD", g_sound_character);
+                    int level = menu_game.Show_Difficult(g_screen, "EASY", "NORMAL", "HARD", g_sound_character);
+                    if (level == 2)
+                    {
+                        p_player.MAP_STEP = 7;
+                        p_player.PLAYER_SPEED = 12;
+                    }
+                    if (level == 3)
+                    {
+                        p_player.MAP_STEP = 9;
+                        p_player.PLAYER_SPEED = 15;
+                    }
+                    ret_menu = level + 5;
                     if (ret_menu == -1) return 0;
                 }
             }
+
         }
+        ret_menu = 0;
+        while (!is_quit)
+        {
+
         while(SDL_PollEvent(&g_event) != 0)
         {
             if(g_event.type == SDL_QUIT)
@@ -163,16 +181,6 @@ int main(int argc, char *argv[])
             p_player.HandelInputAction(g_event, g_screen, g_sound_character);
         }
 
-        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
-        if (currentKeyStates[SDL_SCANCODE_ESCAPE]) {
-            int pau = 0;
-            while (pau == 0)
-            {
-                pau = menu_game.Show_Pause(g_screen, "RESUME", "QUIT", g_sound_character);
-                if (pau == -1) return 0;
-            }
-        }
-
         SDL_SetRenderDrawColor(g_screen, RENDER_DRAW_COLOR, RENDER_DRAW_COLOR,RENDER_DRAW_COLOR, RENDER_DRAW_COLOR );
         SDL_RenderClear(g_screen);
 
@@ -180,25 +188,31 @@ int main(int argc, char *argv[])
         Map map_data = game_map.getMap();
         p_player.SetMapXY(map_data.start_x_, map_data.start_y_);
         p_player.DoPlayer(map_data, g_sound_character);
-        p_player.Show(g_screen);
+        p_player.Show(g_screen, map_data);
 
         game_map.SetMap(map_data);
         game_map.DrawMap(g_screen);
 
-        if (p_player.CheckLose())
-        {
-            int option_menu = menu_game.Show_Option(g_screen,"Play Again", "Quit", g_sound_character);
-            if(option_menu == -1)
+        const Uint8* currentKeyStates = SDL_GetKeyboardState(NULL);
+        if (currentKeyStates[SDL_SCANCODE_ESCAPE]) {
+            int pau = 0;
+            while (pau == 0)
             {
-                return 0;
+                pau = menu_game.Show_Pause(g_screen, "RESUME", "QUIT", g_sound_character);
+                if (pau == -1) {
+                        break;
+                }
             }
-            if (option_menu == 1)
-            {
-                game_map.LoadMap("map//map02.txt");
-                star_val = 0;
-                //game_map.LoadTiles(g_screen);
-                option_menu = 0;
+            if (pau == -1) {
+                p_player.Set_Default(map_data);
+                break;
             }
+            p_player.input_type_.left_  = 0;
+            p_player.input_type_.right_ = 0;
+            p_player.input_type_.jump_left_ = 0;
+            p_player.input_type_.jump_right_ = 0;
+            p_player.input_type_.slide_right_ = 0;
+            p_player.input_type_.slide_left_ = 0;
         }
         //Show game time
         author.SetText(au);
@@ -207,13 +221,11 @@ int main(int argc, char *argv[])
         std::string str_time = "Time: ";
         Uint32 time_val = SDL_GetTicks() / 1000;
         Uint32 val_time = 300 ;//- time_val;
-
-        std::string star_add = "Stars: ";
+         std::string star_add = "Stars: ";
 
         if(p_player.star_== true)
             {
                 star_val = star_val + 1;
-                //p_player.CheckStarFalse();
                 p_player.star_ = false;
             }
         if (val_time <= 0)
@@ -235,8 +247,39 @@ int main(int argc, char *argv[])
             time_game.LoadFromRenderText (font_time, g_screen);
             time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 15);
         }
+         if (p_player.CheckLose())
+        {
+            int option_menu = menu_game.Show_Option(g_screen,"Play Again", "Quit",star_add, g_sound_character);
+            if(option_menu == -1)
+            {
+                break;
+            }
+            if (option_menu == 1)
+            {
+                game_map.LoadMap("map//map02.txt");
+                star_val = 0;
+                option_menu = 0;
+            }
+        }
+        if (p_player.CheckWin() == true)
+        {
+            menu_game.win = true;
+            int option_menu = menu_game.Show_Option(g_screen,"Play Again", "Quit",star_add, g_sound_character);
+            if(option_menu == -1)
+            {
+                break;
+            }
+            if (option_menu == 1)
+            {
+                game_map.LoadMap("map//map02.txt");
+                star_val = 0;
+                option_menu = 0;
+            }
+        }
+        menu_game.win = false;
         SDL_RenderPresent(g_screen);
         SDL_Delay(50);
+    }
     }
     close();
     return 0;
