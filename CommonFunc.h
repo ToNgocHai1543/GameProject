@@ -53,7 +53,7 @@ typedef struct Input
 #define TNT 7
 #define POISION 6
 #define STAR 8
-#define MAP_STEP 5
+//#define MAP_STEP 5
 
 typedef struct Map
 {
