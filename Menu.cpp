@@ -163,7 +163,7 @@ int Menu::ShowMenu(std:: string t_play, std::string t_exit,std::string t_difficu
     {
         play_game.RenderText(screen, 320, 230);
         exit_.RenderText(screen, 350, 380);
-        difficult_.RenderText(screen, 580, 230);
+        difficult_.RenderText(screen, 610, 230);
         how_.RenderText(screen, 615, 380);
         while(SDL_PollEvent(&g_event))
         {
