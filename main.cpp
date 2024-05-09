@@ -12,13 +12,11 @@
 #include "Menu_object.h"
 #include "Mouse.h"
 #include "Menu.h"
-
+#include <fstream>
 using namespace std;
 
 BaseObject g_background;
 
-//TTF_Font* font_time = NULL;
-//SDL_Surface* screen;
 bool InitData()
 {
     bool success = true;
@@ -116,21 +114,32 @@ int main(int argc, char *argv[])
     game_map.LoadMap("map//map02.txt");
     game_map.LoadTiles(g_screen);
 
-//Time text
     TextObject author;
     author.SetColor(TextObject:: RED_TEXT);
     std::string au = "To Ngoc Hai";
+    author.SetText(au);
+    author.LoadFromRenderText (font_time, g_screen);
 
+
+//Time text
     TextObject time_game;
     time_game.SetColor(TextObject:: RED_TEXT);
 // Start text
     TextObject star;
     star.SetColor(TextObject:: RED_TEXT);
+//Hight Star
+    TextObject th_star;
+    th_star.SetColor(TextObject:: RED_TEXT);
+
+
+
 
     bool is_quit = false;
     Uint32 star_val = 0;
     mute = false;
     menu_game.win = false;
+
+
     while(!is_quit)
     {
         p_player.MAP_STEP = 5;
@@ -151,7 +160,12 @@ int main(int argc, char *argv[])
             {
                 while (ret_menu == 3)
                 {
-                    int level = menu_game.Show_Difficult(g_screen, "EASY", "NORMAL", "HARD", g_sound_character);
+                    int level = menu_game.Show_Difficult(g_screen, "EASY", "NORMAL", "HARD", "OKAY", g_sound_character);
+                    if (level == 1)
+                    {
+                        p_player.MAP_STEP = 5;
+                        p_player.PLAYER_SPEED = 10;
+                    }
                     if (level == 2)
                     {
                         p_player.MAP_STEP = 7;
@@ -162,16 +176,23 @@ int main(int argc, char *argv[])
                         p_player.MAP_STEP = 9;
                         p_player.PLAYER_SPEED = 15;
                     }
-                    ret_menu = level + 5;
+                    if (level == 0) ret_menu = level;
                     if (ret_menu == -1) return 0;
                 }
             }
-
         }
         ret_menu = 0;
         while (!is_quit)
         {
+        std::ifstream input_hightstar("hight_star.txt");
+        Uint32 hight_star;
+        input_hightstar >> hight_star;
+        std::string hs = std::to_string(hight_star);
+        hs = "Hight Star: " + hs;
+        th_star.SetText(hs);
+        th_star.LoadFromRenderText (font_time, g_screen);
 
+        std::ofstream output_hightstar("hight_star.txt", std::ofstream::out | std::ofstream::trunc);
         while(SDL_PollEvent(&g_event) != 0)
         {
             if(g_event.type == SDL_QUIT)
@@ -200,6 +221,7 @@ int main(int argc, char *argv[])
             {
                 pau = menu_game.Show_Pause(g_screen, "RESUME", "QUIT", g_sound_character);
                 if (pau == -1) {
+                        return 0;
                         break;
                 }
             }
@@ -215,43 +237,52 @@ int main(int argc, char *argv[])
             p_player.input_type_.slide_left_ = 0;
         }
         //Show game time
-        author.SetText(au);
-        author.LoadFromRenderText (font_time, g_screen);
+
+        //std::string str_time = "Hight Star: ";
+        //Uint32 time_val = SDL_GetTicks() / 1000;
+        //Uint32 val_time = 86;//- time_val;
+// Render Text
         author.RenderText(g_screen, 100 , 15);
-        std::string str_time = "Time: ";
-        Uint32 time_val = SDL_GetTicks() / 1000;
-        Uint32 val_time = 300 ;//- time_val;
-         std::string star_add = "Stars: ";
+        th_star.RenderText(g_screen, SCREEN_WIDTH - 200, 15);
+
+        std::string star_add = "Stars: ";
 
         if(p_player.star_== true)
-            {
-                star_val = star_val + 1;
-                p_player.star_ = false;
-            }
-        if (val_time <= 0)
+        {
+            star_val = star_val + 1;
+            p_player.star_ = false;
+        }
+       /* if (val_time <= 0)
         {
             is_quit = true;
             break;
         }
         else
-        {
+        {*/
             std::string star_val_ = std::to_string(star_val);
             star_add += star_val_;
             star.SetText(star_add);
             star.LoadFromRenderText(font_time, g_screen);
             star.RenderText(g_screen, SCREEN_WIDTH / 2 , 15);
 
-            std::string str_val = std::to_string(val_time);
+            if(star_val > hight_star)
+            {
+                output_hightstar << star_val;
+            }
+            /*std::string str_val = std::to_string(val_time);
             str_time += str_val;
             time_game.SetText(str_time);
             time_game.LoadFromRenderText (font_time, g_screen);
-            time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 15);
-        }
+            time_game.RenderText(g_screen, SCREEN_WIDTH - 200, 15);*/
+        //}
          if (p_player.CheckLose())
         {
             int option_menu = menu_game.Show_Option(g_screen,"Play Again", "Quit",star_add, g_sound_character);
             if(option_menu == -1)
             {
+                game_map.LoadMap("map//map02.txt");
+                star_val = 0;
+                option_menu = 0;
                 break;
             }
             if (option_menu == 1)
@@ -267,6 +298,9 @@ int main(int argc, char *argv[])
             int option_menu = menu_game.Show_Option(g_screen,"Play Again", "Quit",star_add, g_sound_character);
             if(option_menu == -1)
             {
+                game_map.LoadMap("map//map02.txt");
+                star_val = 0;
+                option_menu = 0;
                 break;
             }
             if (option_menu == 1)
@@ -280,7 +314,10 @@ int main(int argc, char *argv[])
         SDL_RenderPresent(g_screen);
         SDL_Delay(50);
     }
+
     }
+    //input_hightstar.close();
+    //output_hightstar.close();
     close();
     return 0;
 }
