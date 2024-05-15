@@ -26,6 +26,7 @@ MainObject::MainObject()
     ps = false;
     star_ = false;
     die = false;
+    win_ = false;
  }
 
 MainObject::~MainObject()
@@ -99,7 +100,7 @@ void MainObject::set_clips()
     }
 }
 
-void MainObject::Show(SDL_Renderer* des)
+void MainObject::Show(SDL_Renderer* des, Map& map_data)
 {
     if (on_ground_ == true)
     {
@@ -252,12 +253,6 @@ void MainObject:: HandelInputAction(SDL_Event events, SDL_Renderer* screen,
         }
     }
 }
-
-bool MainObject::CheckLose()
-{
-    return die;
-}
-
 void MainObject::waitUntilKeyPressed()
 {
     SDL_Event e;
@@ -303,6 +298,7 @@ void MainObject::SlideRight()
 void MainObject::DoPlayer(Map& map_data, Mix_Chunk* g_sound_character[10])
 {
     die = false;
+    win_ = false;
     if (input_type_.left_ == 1)
     {
         MoveLeft();
@@ -335,6 +331,10 @@ void MainObject::DoPlayer(Map& map_data, Mix_Chunk* g_sound_character[10])
     CheckVerticalUp(map_data);
     CheckHorizontalRight(map_data);
     CheckHorizontalLeft(map_data);
+    if (win_ == true)
+    {
+        Mix_PlayChannel(-1, g_sound_character[7], 0);
+    }
     if (tnt == true)
     {
         Mix_PlayChannel(-1, g_sound_character[2], 0);
@@ -349,7 +349,7 @@ void MainObject::DoPlayer(Map& map_data, Mix_Chunk* g_sound_character[10])
     {
         Mix_PlayChannel(-1, g_sound_character[4], 0);
     }
-    if (rect_.x >= SCREEN_WIDTH or rect_.x <= -5)
+    if (rect_.x >= SCREEN_WIDTH or rect_.x < 0)
     {
        Mix_PlayChannel(-1, g_sound_character[5], 0);
        die = true;
@@ -359,7 +359,7 @@ void MainObject::DoPlayer(Map& map_data, Mix_Chunk* g_sound_character[10])
         Mix_PlayChannel(-1, g_sound_character[5], 0);
         die = true;
     }
-    MoveMap(map_data);
+     MoveMap(map_data);
 }
 
 void MainObject::CheckVerticalDown(Map& map_data)
@@ -384,11 +384,15 @@ void MainObject::CheckVerticalDown(Map& map_data)
         }
         if (map_data.tile[y][x] == TNT )
         {
-        tnt = true;
+            tnt = true;
         }
         if ( map_data.tile[y][x] == POISION)
         {
-        ps = true;
+            ps = true;
+        }
+        if ( map_data.tile[y][x] == WIN_GAME)
+        {
+            win_ = true;
         }
         on_ground_ = true;
         y_pos_ = y * TILE_SIZE - height_frame_;
@@ -412,13 +416,21 @@ void MainObject::CheckVerticalUp(Map& map_data)
         }
         if ( map_data.tile[y][x] == POISION)
         {
-        ps = true;
+            ps = true;
+        }
+        if ( map_data.tile[y][x] == WIN_GAME)
+        {
+            win_ = true;
         }
     }
     if (map_data.tile[y][x] == STAR)
     {
         star_ = true;
         map_data.tile[y][x] = BLANK_TILE;
+    }
+    if ( map_data.tile[y][x] == WIN_GAME)
+    {
+        win_ = true;
     }
     //else star_ = false;
 
@@ -442,7 +454,11 @@ void MainObject::CheckHorizontalRight(Map& map_data)
         }
         if (map_data.tile[y][x] == POISION  or map_data.tile[y + 1][x] == POISION)
         {
-        ps = true;
+            ps = true;
+        }
+        if (map_data.tile[y][x] == WIN_GAME or map_data.tile[y + 1][x] == WIN_GAME)
+        {
+            win_ = true;
         }
         if (map_data.tile[y][x] == STAR )
         {
@@ -469,6 +485,10 @@ void MainObject::CheckHorizontalRight(Map& map_data)
         if ( map_data.tile[y][x] == POISION)
         {
         ps = true;
+        }
+        if ( map_data.tile[y][x] == WIN_GAME)
+        {
+            win_ = true;
         }
         x_pos_ = x_pos_ - PLAYER_SPEED;
 
@@ -495,6 +515,11 @@ void MainObject::CheckHorizontalLeft(Map& map_data)
         {
         ps = true;
         }
+        if (map_data.tile[y][x] == WIN_GAME
+             or map_data.tile[y + 1][x] == WIN_GAME)
+        {
+            win_ = true;
+        }
         if (map_data.tile[y][x] == STAR )
         {
             star_ = true;
@@ -520,7 +545,11 @@ void MainObject::CheckHorizontalLeft(Map& map_data)
         }
         if ( map_data.tile[y][x] == POISION)
         {
-        ps = true;
+            ps = true;
+        }
+        if ( map_data.tile[y][x] == WIN_GAME)
+        {
+            win_ = true;
         }
     }
 }
@@ -529,7 +558,7 @@ void MainObject:: MoveMap(Map& map_data)
 {
     //cerr << "map_x_ " <<  map_x_ << endl;
     //cerr << "map_y_ " << map_y_ << endl;
-    if (map_data.start_x_ >= MAX_MAP_X * TILE_SIZE)
+    /*if (map_data.start_x_ >= MAX_MAP_X * TILE_SIZE)
     {
         map_data.start_x_ = 0;
     }
@@ -537,13 +566,19 @@ void MainObject:: MoveMap(Map& map_data)
     {
         map_data.start_x_ = (map_data.start_x_ + MAP_STEP) % (MAX_MAP_X * TILE_SIZE);
 
+    }*/
+    if (map_data.start_x_ + SCREEN_WIDTH >= map_data.max_x_)
+    {
+        map_data.start_x_ = map_data.max_x_ - SCREEN_WIDTH;
     }
+    else map_data.start_x_ += MAP_STEP;
 
     if (rect_.x >= SCREEN_WIDTH or rect_.x <= 0)
     {
        // waitUntilKeyPressed();
-        map_data.start_x_ = MAP_STEP;
-        x_pos_ = 128; y_pos_ = 320;
+        map_data.start_x_ = 0;
+        map_x_ = map_data.start_x_;
+        x_pos_ = 128  ; y_pos_ = 320;
         status_ = -1;
         input_type_.left_  = 0;
         input_type_.right_ = 0;
@@ -555,7 +590,7 @@ void MainObject:: MoveMap(Map& map_data)
     if (rect_.y >= SCREEN_HEIGHT)
     {
        // waitUntilKeyPressed();
-        map_data.start_x_ = MAP_STEP;
+        map_data.start_x_ = 0; map_x_ = map_data.start_x_;
         x_pos_ = 128; y_pos_ = 320;
         status_ = -1;
         input_type_.left_  = 0;
@@ -568,7 +603,7 @@ void MainObject:: MoveMap(Map& map_data)
     if (ps == true)
     {
        // waitUntilKeyPressed();
-        map_data.start_x_ = MAP_STEP;
+        map_data.start_x_ = 0; map_x_ = map_data.start_x_;
         x_pos_ = 128; y_pos_ = 320;
         status_ = -1;
         ps = false;
@@ -582,7 +617,7 @@ void MainObject:: MoveMap(Map& map_data)
     if (tnt == true)
     {
        // waitUntilKeyPressed();
-        map_data.start_x_ = MAP_STEP;
+        map_data.start_x_ = 0; map_x_ = map_data.start_x_;
         x_pos_ = 128; y_pos_ = 320;
         tnt = false;
         status_ = -1;
@@ -594,10 +629,23 @@ void MainObject:: MoveMap(Map& map_data)
         input_type_.slide_left_ = 0;
     }
 }
-
-
-
-
-
-
-
+bool MainObject::CheckLose()
+{
+    return die;
+}
+bool MainObject::CheckWin()
+{
+    return win_;
+}
+void MainObject::Set_Default(Map& map_data)
+{
+    map_data.start_x_ = 0; map_x_ = map_data.start_x_;
+    x_pos_ = 128; y_pos_ = 320;
+    status_ = -1;
+    input_type_.left_  = 0;
+    input_type_.right_ = 0;
+    input_type_.jump_left_ = 0;
+    input_type_.jump_right_ = 0;
+    input_type_.slide_right_ = 0;
+    input_type_.slide_left_ = 0;
+}
