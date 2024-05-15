@@ -25,7 +25,7 @@ void Menu::Show_Button(SDL_Renderer* des, std::string path, int button_x, int bu
     SDL_RenderCopy(des, p_object_, current_clip, &renderQuad);
 }
 int Menu::Show_Difficult (SDL_Renderer* screen, std:: string easy, std::string normal,
-                           std:: string hard, Mix_Chunk* g_sound_character[10])
+                           std:: string hard,std::string okay, Mix_Chunk* g_sound_character[10])
 {
     TTF_Font* font_menu = TTF_OpenFont("FFF_Tusj.ttf", 27);
     Show_Button(screen,"asset//menu//Menu_game.jpg", 0, 0);
@@ -33,12 +33,15 @@ int Menu::Show_Difficult (SDL_Renderer* screen, std:: string easy, std::string n
     Show_Button(screen,"asset//Button//Button_1.png", 555, 100);
     Show_Button(screen,"asset//Button//Button_1.png", 555, 250);
     Show_Button(screen,"asset//Button//Button_1.png", 555, 400);
+    Show_Button(screen,"asset//Button//Button_1.png", 555, 530);
     easy_.SetText(easy);
     easy_.LoadFromRenderText(font_menu, screen);
     normal_.SetText(normal);
     normal_.LoadFromRenderText(font_menu, screen);
     hard_.SetText(hard);
     hard_.LoadFromRenderText(font_menu, screen);
+    okay_.SetText(okay);
+    okay_.LoadFromRenderText(font_menu, screen);
     int x = 0;
     int y = 0;
     while(1)
@@ -46,6 +49,7 @@ int Menu::Show_Difficult (SDL_Renderer* screen, std:: string easy, std::string n
         easy_.RenderText(screen, 610, 130);
         normal_.RenderText(screen, 595, 280);
         hard_.RenderText(screen, 610, 430);
+        okay_.RenderText(screen, 610, 560);
         while(SDL_PollEvent(&g_event))
         {
             switch(g_event.type)
@@ -65,10 +69,14 @@ int Menu::Show_Difficult (SDL_Renderer* screen, std:: string easy, std::string n
                 else if(x >= 555 && x <= 760 && y >= 400 && y<= 500){
                     Show_Button(screen,"asset//Button//Button_1_2.png", 555, 400);
                 }
+                else if(x >= 555 && x <= 760 && y >= 530 && y<= 630){
+                    Show_Button(screen,"asset//Button//Button_1_2.png", 555, 530);
+                }
                 else{
                     Show_Button(screen,"asset//Button//Button_1.png", 555, 100);
                     Show_Button(screen,"asset//Button//Button_1.png", 555, 250);
                     Show_Button(screen,"asset//Button//Button_1.png", 555, 400);
+                    Show_Button(screen,"asset//Button//Button_1.png", 555, 530);
                 }
                 break;
             case SDL_MOUSEBUTTONDOWN:
@@ -77,13 +85,18 @@ int Menu::Show_Difficult (SDL_Renderer* screen, std:: string easy, std::string n
                 Mix_PlayChannel(-1, g_sound_character[6], 0);
                 if(x >= 555 && x <= 760 && y >= 100 && y<= 200){
                     BaseObject::Free();
-                    return 0;
+                    return 1;
                 }
                 if(x >= 555 && x <= 760 && y >= 250 && y<= 350){
                     BaseObject::Free();
-                    return 0;
+                    return 2;
                 }
                  if(x >= 555 && x <= 760 && y >= 400 && y<= 500){
+                    BaseObject::Free();
+                    return 3;
+                }
+                if (x >= 555 && x <= 760 && y >= 530 && y<= 630)
+                {
                     BaseObject::Free();
                     return 0;
                 }
@@ -253,10 +266,15 @@ int Menu::ShowMenu(std:: string t_play, std::string t_exit,std::string t_difficu
     }
 }
 
-int Menu::Show_Option(SDL_Renderer* screen, std:: string t_play_again, std::string t_exit, Mix_Chunk* g_sound_character[10])
+int Menu::Show_Option(SDL_Renderer* screen, std:: string t_play_again, std::string t_exit,std::string t_star, Mix_Chunk* g_sound_character[10])
 {
     TTF_Font* font_menu = TTF_OpenFont("FFF_Tusj.ttf", 27);
-    Show_Button(screen,"asset//menu//play_again.png", 492, 120);
+    if (win == false)
+    {
+        Show_Button(screen,"asset//menu//play_again.png", 492, 120);
+
+    }
+    else Show_Button(screen, "asset//menu//win.png", 404, 70);
     Show_Button(screen,"asset//Button//Button_1.png", 540, 220);
     Show_Button(screen,"asset//Button//Button_1.png", 540, 350);
     BaseObject::Render(screen, NULL);
@@ -264,10 +282,14 @@ int Menu::Show_Option(SDL_Renderer* screen, std:: string t_play_again, std::stri
     play_agian.LoadFromRenderText(font_menu, screen);
     quit.SetText(t_exit);
     quit.LoadFromRenderText(font_menu, screen);
+    star_.SetText(t_star);
+    star_.LoadFromRenderText(font_menu, screen);
+    star_.SetColor(255, 255, 0);
     int x = 0;
     int y = 0;
     while(1)
     {
+        star_.RenderText(screen, 585, 170);
         play_agian.RenderText(screen, 570, 250);
         quit.RenderText(screen, 600, 380);
         while(SDL_PollEvent(&g_event))
@@ -369,4 +391,3 @@ int Menu::Show_Pause(SDL_Renderer* screen, std:: string t_resume, std::string t_
         SDL_RenderPresent(screen);
     }
 }
-
