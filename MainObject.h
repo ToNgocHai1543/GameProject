@@ -25,7 +25,7 @@ public :
         SLIDE_RIGHT = 5,
     };
     bool LoadImg(std:: string path, SDL_Renderer* screen);
-    void Show(SDL_Renderer* des);
+    void Show(SDL_Renderer* des, Map& map_data);
     void HandelInputAction(SDL_Event events, SDL_Renderer* screen,
                             Mix_Chunk* g_sound_character[10]);
     void set_clips();
@@ -50,13 +50,18 @@ public :
     void SlideRight();
     void Star_Game(Map& map_data);
     bool CheckLose();
+    bool CheckWin();
     void waitUntilKeyPressed();
+    void Set_Default(Map& map_data);
 
     bool star_;
     bool tnt;
     bool ps;
     bool die;
-
+    bool win_;
+    Input input_type_;
+    int MAP_STEP;
+    int PLAYER_SPEED;
  private:
     float x_val_;
     float y_val_;
@@ -71,7 +76,7 @@ public :
     SDL_Rect frame_clip_[10];
     //SDL_Rect frame_j_clip_[2];
 
-    Input input_type_;
+    //Input input_type_;
     int frame_;
     int status_;
 
