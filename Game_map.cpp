@@ -87,7 +87,8 @@ void GameMap::DrawMap(SDL_Renderer* screen)
         map_x = game_map_.start_x_/TILE_SIZE;
          for (int j = x1; j < x2; j+= TILE_SIZE)
          {
-             int val = game_map_.tile[map_y ][map_x % MAX_MAP_X];
+             //int val = game_map_.tile[map_y ][map_x % MAX_MAP_X];
+             int val = game_map_.tile[map_y ][map_x];
              if (val > 0)
              {
                  tile_mat[val].SetRect(j, i);
@@ -98,34 +99,3 @@ void GameMap::DrawMap(SDL_Renderer* screen)
          map_y++;
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
