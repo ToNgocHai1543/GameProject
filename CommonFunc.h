@@ -16,6 +16,7 @@ static Mix_Chunk* g_sound_character[10];
 static Mix_Music* m_ingame = NULL;
 static TTF_Font* font_time = NULL;
 static bool mute;
+//static bool win;
 //static SDL_Surface* g_menu = NULL;
 
 // Screen;
@@ -54,6 +55,7 @@ typedef struct Input
 #define POISION 6
 #define STAR 8
 //#define MAP_STEP 5
+#define WIN_GAME 5
 
 typedef struct Map
 {
