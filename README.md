@@ -18,6 +18,7 @@ chuyển tránh các chướng ngại vật và đem về nhiều ngôi sao nh�
 >3. Mũi tên sang trái hay sang phải để chạy sang bên trái hoặc phải
 >4. Chạm vào cửa sổ màn hình bên trái bạn sẽ thua.
 >5. Chạm vào TNT hay POISON bạn sẽ thua.
+![](rule.png)
 ---
 > Bạn sẽ thắng khi chạm vào vương miện
  ## Ngưỡng điểm tự chấm : 8,5
