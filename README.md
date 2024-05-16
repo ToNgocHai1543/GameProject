@@ -4,7 +4,9 @@
 ---
 ## Tác giả
 > TÔ NGỌC HẢI
+> 
 > MSSV: 23021543
+> 
 > Lớp: K68-CA1
 
 ## Giới thiệu về game
