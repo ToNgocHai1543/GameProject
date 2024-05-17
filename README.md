@@ -10,7 +10,7 @@
 > Lớp: K68-CA1
 
 ## Giới thiệu về game
-Một tựa game giống với game *_Dino Chorme_*, nhưng ở đây bạn phải tự mình di chuyển
+Một tựa game giống với game *_Dino Chrome_*, nhưng ở đây bạn phải tự mình di chuyển
 để kịp với tốc độ của bản đồ nếu không bạn sẽ bị bỏ rơi. Dùng các mũi tên đẻ di 
 chuyển tránh các chướng ngại vật và đem về nhiều ngôi sao nhất cho mình.
 
@@ -25,7 +25,7 @@ chuyển tránh các chướng ngại vật và đem về nhiều ngôi sao nh�
 ![](rule.png)
 ---
 > Bạn sẽ thắng khi chạm vào vương miện
- ## Ngưỡng điểm tự chấm : 9
+ ## Ngưỡng điểm tự chấm : 9 - 10
  Lý do:
  1. Game tự viết có thuật toán nằm ngoài chương trình môn học 
  2. Game tự viết có đồ họa đơn giản. 
