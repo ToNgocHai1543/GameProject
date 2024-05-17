@@ -1,6 +1,6 @@
 # GAME 'SPEED RUN'
 ---
-![](demo.png)
+![](demo1.png)
 ---
 ## Tác giả
 > TÔ NGỌC HẢI
@@ -11,7 +11,7 @@
 
 ## Giới thiệu về game
 Một tựa game giống với game *_Dino Chorme_*, nhưng ở đây bạn phải tự mình di chuyển
-để kịp với tốc độ của bạn đồ nếu không bạn sẽ bị bỏ rơi. Dùng các mũi tên đẻ di 
+để kịp với tốc độ của bản đồ nếu không bạn sẽ bị bỏ rơi. Dùng các mũi tên đẻ di 
 chuyển tránh các chướng ngại vật và đem về nhiều ngôi sao nhất cho mình.
 
 ## Cách chơi
