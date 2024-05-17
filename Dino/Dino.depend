@@ -1,0 +1,89 @@
+# depslib dependency file v1.0
+1711271227 source:c:\dino\dino\game.cpp
+
+1711271215 c:\dino\dino\game.h
+
+1715878859 source:c:\dino\dino\main.cpp
+	<iostream>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_ttf.h>
+	<SDL_mixer.h>
+	<windows.foundation.h>
+	"stdafx.h"
+	"CommonFunc.h"
+	"BaseObject.h"
+	"MainObject.h"
+	"Game_map.h"
+	"Menu_object.h"
+	"Mouse.h"
+	"Menu.h"
+	<fstream>
+
+1711271137 c:\dino\dino\defs.h
+
+1711304686 source:c:\dino\dino\commonfunc.cpp
+	"CommonFunc.h"
+
+1715749028 source:c:\dino\dino\mainobject.cpp
+	"stdafx.h"
+	"MainObject.h"
+	<iostream>
+
+1715179759 c:\dino\dino\mainobject.h
+	"Baseobject.h"
+	"CommonFunc.h"
+
+1715749028 c:\dino\dino\commonfunc.h
+	<string>
+	<SDL.h>
+	<SDL_image.h>
+	<SDL_mixer.h>
+	<SDL_ttf.h>
+	"stdafx.h"
+
+1711333431 c:\dino\dino\stdafx.h
+
+1715012456 source:c:\dino\dino\baseobject.cpp
+	"BaseObject.h"
+
+1715749028 c:\dino\dino\baseobject.h
+	"CommonFunc.h"
+	"Menu_object.h"
+	"stdafx.h"
+
+1715749028 source:c:\dino\dino\game_map.cpp
+	"Game_map.h"
+	"stdafx.h"
+
+1712813750 c:\dino\dino\game_map.h
+	"CommonFunc.h"
+	"BaseObject.h"
+
+1714728864 source:c:\dino\dino\menu_object.cpp
+	"Menu_object.h"
+	"stdafx.h"
+
+1714728864 c:\dino\dino\menu_object.h
+	"CommonFunc.h"
+	"stdafx.h"
+	"BaseObject.h"
+	<SDL_ttf.h>
+
+1714153268 source:c:\dino\dino\mouse.cpp
+	"Mouse.h"
+	"stdafx.h"
+
+1714746601 c:\dino\dino\mouse.h
+	"BaseObject.h"
+	"CommonFunc.h"
+
+1715882068 source:c:\dino\dino\menu.cpp
+	"Menu.h"
+	"iostream"
+
+1715182981 c:\dino\dino\menu.h
+	"CommonFunc.h"
+	"BaseObject.h"
+	"Menu_object.h"
+
