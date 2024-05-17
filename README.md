@@ -25,7 +25,7 @@ chuyển tránh các chướng ngại vật và đem về nhiều ngôi sao nh�
 ![](rule.png)
 ---
 > Bạn sẽ thắng khi chạm vào vương miện
- ## Ngưỡng điểm tự chấm : 9 - 10
+ ## Ngưỡng điểm tự chấm : 8,5
  Lý do:
  1. Game tự viết có thuật toán nằm ngoài chương trình môn học 
  2. Game tự viết có đồ họa đơn giản. 
