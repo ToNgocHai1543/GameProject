@@ -1,6 +1,6 @@
 # GAME 'SPEED RUN'
 ---
-![](demo1.png)
+![](demo1.jpg)
 ---
 ## Tác giả
 > TÔ NGỌC HẢI
